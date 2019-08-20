@@ -7,7 +7,7 @@
  * The ALU (Arithmetic Logic Unit).
  * Computes one of the following functions:
  * x+y, x-y, y-x, 0, 1, -1, x, y, -x, -y, !x, !y,
- * x+1, y+1, x-1, y-1, x&y, x|y on two 16-bit inputs, 
+ * x+1, y+1, x-1, y-1, x&y, x|y on two 16-bit inputs,
  * according to 6 input bits denoted zx,nx,zy,ny,f,no.
  * In addition, the ALU computes two 1-bit outputs:
  * if the ALU output == 0, zr is set to 1; otherwise zr is set to 0;
@@ -27,8 +27,8 @@
 // if (out < 0) set ng = 1
 
 CHIP ALU {
-    IN  
-        x[16], y[16],  // 16-bit inputs        
+    IN
+        x[16], y[16],  // 16-bit inputs
         zx, // zero the x input?
         nx, // negate the x input?
         zy, // zero the y input?
@@ -36,11 +36,39 @@ CHIP ALU {
         f,  // compute out = x + y (if 1) or x & y (if 0)
         no; // negate the out output?
 
-    OUT 
+    OUT
         out[16], // 16-bit output
         zr, // 1 if (out == 0), 0 otherwise
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-   // Put you code here:
+    Mux16(a=x, b=false, sel=zx, out=x1); // zero x input? (zx)
+    Not16(in=x1, out=nx1);               // notx
+    Mux16(a=x1, b=nx1, sel=nx, out=x2);  // negate x input? (nx)
+
+
+    Mux16(a=y, b=false, sel=zy, out=y1); // zero y input? (zy)
+    Not16(in=y1, out=ny1);               // noty
+    Mux16(a=y1, b=ny1, sel=ny, out=y2);  // negate y input? (ny)
+
+    And16(a=x2, b=y2, out=andout);  // x&y
+    Add16(a=x2, b=y2, out=addout);  // x+y
+
+    Mux16(a=andout, b=addout, sel=f, out=out1); // x&y or x+y ?
+
+    Not16(in=out1, out=nout1); // notout
+    Mux16(a=out1, b=nout1, sel=no, out=out, //negate output?
+        out[0..7]=eightbitout1,  // 8 bits of output
+        out[8..15]=eightbitout2, // 8 bits of output
+        out[15]=isneg    // first bit
+    );
+
+    // check iff out=0
+    Or8Way(in=eightbitout1, out=nzr1);
+    Or8Way(in=eightbitout2, out=nzr2);
+    Or(a=nzr1, b=nzr2, out=nzr);
+    Not(in=nzr, out=zr);
+
+    // check iff out<0
+    Mux(a=false, b=true, sel=isneg, out=ng);
 }
