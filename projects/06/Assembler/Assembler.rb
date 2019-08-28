@@ -1,6 +1,4 @@
 require('./Main.rb');
 
-filename = ARGV.first
-
+filename = '../' + ARGV.first
 x = Main.new(filename)
-x.parse()

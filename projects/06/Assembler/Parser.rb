@@ -1,5 +1,6 @@
 class Parser
   attr_reader :hasMoreCommands, :commandType, :symbol, :dest, :comp, :jump
+  attr_writer :i
 
   # Opens the input file/stream and gets ready to parse it
   def initialize(filename)
@@ -47,29 +48,6 @@ private
         @comp = @dest
         @dest = ''
       end
-
     end
   end
 end
-
-# a=Parser.new('../pong/PongL.asm')
-# a.advance
-# a.advance
-# a.advance
-# a.advance
-# a.advance
-# a.advance
-# a.advance
-# a.advance
-# a.advance
-# a.advance
-# a.advance
-# a.advance
-# a.advance
-# a.advance
-# a.advance
-# a.advance
-# a.advance
-# a.advance
-# a.advance
-# a.advance

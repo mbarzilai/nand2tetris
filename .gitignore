@@ -2,3 +2,5 @@
 *.cmp
 *.out
 /tools
+*.hack
+*.asm
